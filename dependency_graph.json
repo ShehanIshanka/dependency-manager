@@ -1,0 +1,44 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "label": "Node 1 label"
+    },
+    {
+      "id": "2",
+      "label": "Node 2 label"
+    },
+    {
+      "id": "3",
+      "label": "Node 3 label"
+    },
+    {
+      "id": "4",
+      "label": "Node 4 label"
+    },
+    {
+      "id": "5",
+      "label": "Node 5 label"
+    }
+  ],
+  "edges": [
+    {
+      "source": "1",
+      "target": "2",
+      "weight": 2.0,
+      "label": "Edge between 1 and 2"
+    },
+    {
+      "source": "2",
+      "target": "3",
+      "weight": 3.0,
+      "label": "Edge between 2 and 3"
+    },
+    {
+      "source": "4",
+      "target": "5",
+      "weight": 3.0,
+      "label": "Edge between 4 and 5"
+    }
+  ]
+}
