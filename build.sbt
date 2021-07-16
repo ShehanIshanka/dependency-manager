@@ -2,7 +2,7 @@ name := "dependency-manager"
 
 version := "1.0.0"
 
-lazy val root = (project in file(".")).settings(PlayKeys.playDefaultPort := 8080).enablePlugins(PlayJava)
+lazy val root = (project in file(".")).settings(PlayKeys.playDefaultPort := 8083).enablePlugins(PlayJava)
 
 scalaVersion := "2.12.8"
 

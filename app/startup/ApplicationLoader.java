@@ -3,6 +3,8 @@ package startup;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import modules.CommonModule;
+import modules.ControllerModule;
+import modules.LoggerModule;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.inject.guice.GuiceApplicationLoader;
 
@@ -32,7 +34,9 @@ public class ApplicationLoader extends GuiceApplicationLoader {
         return initialBuilder
                 .in(context.environment())
                 .loadConfig(config)
-                .bindings(new CommonModule(config));
+                .bindings(new LoggerModule())
+                .bindings(new CommonModule(config))
+                .bindings(new ControllerModule(config));
     }
 
 }

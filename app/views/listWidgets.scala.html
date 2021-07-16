@@ -16,7 +16,7 @@
         </thead>
         <tbody>
         @for(w <- widgets) {
-            <tr><td>@w.name</td><td>@w.price</td></tr>
+            <tr><td>@w.name</td></tr>
         }
         </tbody>
     </table>
@@ -36,8 +36,6 @@
         @helper.CSRF.formField
 
         @helper.inputText(form("name"))
-
-        @helper.inputText(form("price"))
 
         <button type="submit">Create widget</button>
     }

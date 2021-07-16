@@ -1,3 +1,20 @@
+var container = document.getElementById("mynetwork1");
+var networkNodes = [];
+var networkEdges = [];
+var data = {
+  nodes: networkNodes,
+  edges: networkEdges,
+};
+var options = {layout: {hierarchical:{direction: 'UD',sortMethod: "directed"}},interaction:{multiselect: true},edges:{ arrows:{to: {enabled: true}},}};
+var network = new vis.Network(container, data, options);
+
+function destroy() {
+  if (network !== null) {
+    network.destroy();
+    network = null;
+  }
+}
+
 function createNetwork(edges,attr) {
     // create an array with nodes
 //    var nodes = new vis.DataSet([
@@ -18,17 +35,25 @@ function createNetwork(edges,attr) {
 //    ]);
     console.log(edges);
     console.log(attr);
-    var nodes = new vis.DataSet(attr);
+    networkNodes = attr;
 
     // create an array with edges
-    var edges1 = new vis.DataSet(edges);
+    networkEdges = edges;
 
     // create a network
-    var container = document.getElementById("mynetwork1");
+//    var container = document.getElementById("mynetwork1");
     var data = {
-      nodes: nodes,
-      edges: edges1,
+      nodes: new vis.DataSet(attr),
+      edges: new vis.DataSet(edges),
     };
-    var options = {};
-    var network = new vis.Network(container, data, options);
+//    var options = {interaction:{multiselect: true}};
+    network = new vis.Network(container, data, options);
+}
+
+function focusNetwork(){
+    nodeLabel = document.getElementById('message').value;
+//    console.log(nodeLabel);
+//    console.log(networkEdges);
+//    console.log(networkNodes.find(o => o.label === nodeLabel)['id']);
+    network.focus(networkNodes.find(o => o.label === nodeLabel)['id']);
 }

@@ -35,6 +35,13 @@
             </script>
     </div>
     <div class="col-md-2">
+        <p>
+            <input type="button" id="btn-UD" value="Up-Down" />
+            <input type="button" id="btn-DU" value="Down-Up" />
+            <input type="button" id="btn-LR" value="Left-Right" />
+            <input type="button" id="btn-RL" value="Right-Left" />
+            <input type="hidden" id="direction" value="UD" />
+        </p>
         @* Flash shows updates to a page *@
         @request.flash.asScala().data.map { case (name, value) =>
         <div class="@name">@value</div>
@@ -50,7 +57,6 @@
 <!--            @for(w <- widgets) {-->
 <!--            <tr>-->
 <!--                <td>@w.name</td>-->
-<!--                <td>@w.price</td>-->
 <!--            </tr>-->
 <!--            }-->
 <!--            </tbody>-->
@@ -79,7 +85,7 @@
         <div>
         @helper.form(action = routes.WidgetController.upload, Symbol("enctype") -> "multipart/form-data") {
         @helper.CSRF.formField
-        <input type="file" name="picture">
+        <input type="file" name="dependency_graph">
 
         <p>
             <input type="submit">
@@ -89,18 +95,26 @@
         </div>
         <hr>
         <div>
-            @helper.form(action = routes.WidgetController.upload) {
-            @helper.CSRF.formField
-            @helper.inputText(form("name"))
-            <button type="submit">Create widget</button>
-            }
+<!--            @helper.form(action = routes.WidgetController.upload) {-->
+<!--            @helper.CSRF.formField-->
+<!--            @helper.inputText(form("name"))-->
+<!--            <button type="submit">Create widget</button>-->
+<!--            }-->
+<!--            <form>-->
+            <div class="form-group">
+                    Enter dependency name to search: <input type="text" id = "message">
+            </div>
+            <input type="button" onclick="focusNetwork()" value="Submit" />
+<!--                Enter message: <input type="text" id = "message">-->
+<!--                <input type="button" onclick="showMessage()" value="submit" />-->
+<!--            </form>-->
         </div>
         <hr>
         <div>
-            @helper.form(action = routes.WidgetController.upload) {
+            @helper.form(action = routes.WidgetController.buildDependencyGraph) {
             @helper.CSRF.formField
             @helper.inputText(form("name"))
-            <button type="submit">Create widget</button>
+            <button type="submit">Submit</button>
             }
         </div>
 

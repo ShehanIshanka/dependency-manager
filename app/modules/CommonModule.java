@@ -1,12 +1,13 @@
 package modules;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
+import com.google.inject.name.Names;
 import com.typesafe.config.Config;
+import engine.GraphReader;
+import engine.JGraphTGraphReader;
 
 /**
  * Guice module for Common injections
- *
  */
 public class CommonModule extends AbstractModule {
     //In case you need to use any configuration values use the config object for that purpose
@@ -23,10 +24,17 @@ public class CommonModule extends AbstractModule {
 
     /**
      * Configures the module
-     *
      */
-//    @Override
-//    protected void configure() {
-//        install(new FactoryModuleBuilder().build(ExecutionStatusTrackerFactory.class));
-//    }
+    @Override
+    protected void configure() {
+        // Named constants
+        bindConstant().annotatedWith(Names.named("dependencyGraphFile")).to(config.getString("dependency.graph.file"));
+
+        bind(GraphReader.class).to(JGraphTGraphReader.class);
+
+//        bind(new TypeLiteral<BaseConnectionManager<Connection>>() {
+//        }).to(HBaseConnectionManager.class);
+//        bind(new TypeLiteral<BaseConnection<Result>>() {
+//        }).to(HBaseConnection.class);
+    }
 }

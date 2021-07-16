@@ -1,24 +1,25 @@
 package controllers;
 
+import com.google.inject.Inject;
+import engine.GraphReader;
 import engine.JGraphTGraphReader;
 import models.Widget;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import play.libs.Files;
+import play.Logger;
 import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
+import play.libs.Files;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import utils.file.FileAccessException;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.nio.file.Paths;
 import java.util.List;
 
 import static play.libs.Scala.asScala;
+
+//import javax.inject.Inject;
 
 /**
  * An example of form processing.
@@ -28,32 +29,35 @@ import static play.libs.Scala.asScala;
 @Singleton
 public class WidgetController extends Controller {
 
+    //    @Inject
+    private JGraphTGraphReader graphReader;
+//    private GraphReader graphReader = new JGraphTGraphReader("dependency_graph.json");
+
     private final Form<WidgetData> form;
     private MessagesApi messagesApi;
     private final List<Widget> widgets;
-    private final String edges;
-    private final String attr;
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Inject
-    public WidgetController(FormFactory formFactory, MessagesApi messagesApi) throws FileAccessException {
+    private static Logger.ALogger logger;
+
+    //    @javax.inject.Inject
+    @Inject
+    public WidgetController(FormFactory formFactory, MessagesApi messagesApi, JGraphTGraphReader graphReader) {
+        this.graphReader = graphReader;
         this.form = formFactory.form(WidgetData.class);
         this.messagesApi = messagesApi;
         this.widgets = com.google.common.collect.Lists.newArrayList(
-                new Widget("Data 1", 123),
-                new Widget("Data 2", 456),
-                new Widget("Data 3", 789)
+                new Widget("Data 1"),
+                new Widget("Data 2"),
+                new Widget("Data 3")
         );
-//        this.edges = Json.stringify(Json.toJson(new JGraphTGraphReader().getEdges()));
-//        this.attr = Json.stringify(Json.toJson(new JGraphTGraphReader().getAttributes()));
-        this.edges = new JGraphTGraphReader().getEdges();
-        this.attr = new JGraphTGraphReader().getAttributes();
+
     }
 
     public Result index(Http.Request request) {
-        System.out.println(edges);
-        System.out.println(attr);
+        graphReader.readGraphFromFile();
+        String edges = graphReader.getEdges();
+        String attr = graphReader.getAttributes();
         return ok(views.html.index.render(edges, attr, asScala(widgets), form, request, messagesApi.preferred(request)));
     }
 
@@ -69,28 +73,43 @@ public class WidgetController extends Controller {
             return badRequest(views.html.listWidgets.render(asScala(widgets), boundForm, request, messagesApi.preferred(request)));
         } else {
             WidgetData data = boundForm.get();
-            widgets.add(new Widget(data.getName(), data.getPrice()));
+            widgets.add(new Widget(data.getName()));
             return redirect(routes.WidgetController.listWidgets())
                     .flashing("info", "Widget added!");
+        }
+    }
+
+    public Result buildDependencyGraph(Http.Request request) {
+        final Form<WidgetData> boundForm = form.bindFromRequest(request);
+
+        if (boundForm.hasErrors()) {
+            logger.error("errors = {}", boundForm.errors());
+            return redirect(routes.WidgetController.index()).flashing("error", "File is missing.");
+        } else {
+            WidgetData data = boundForm.get();
+            widgets.add(new Widget(data.getName()));
+
+            String edges = graphReader.getEdges();
+//            String attr = graphReader.getAttributes();
+            String attr = graphReader.buildGraphFromDependencies(data.getName());
+            logger.info(edges);
+            return ok(views.html.index.render(edges, attr, asScala(widgets), form, request, messagesApi.preferred(request)));
         }
     }
 
     public Result upload(Http.Request request) {
 
         Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();
-        Http.MultipartFormData.FilePart<Files.TemporaryFile> picture = body.getFile("picture");
-        if (picture != null) {
-            System.out.println("aaaaaaaaa");
-            String fileName = picture.getFilename();
-            long fileSize = picture.getFileSize();
-            String contentType = picture.getContentType();
-            Files.TemporaryFile file = picture.getRef();
-            file.copyTo(Paths.get("destination.jon"), true);
+        Http.MultipartFormData.FilePart<Files.TemporaryFile> dependencyGraphFile = body.getFile("dependency_graph");
+        if (dependencyGraphFile != null) {
+            Files.TemporaryFile file = dependencyGraphFile.getRef();
+            file.copyTo(Paths.get("dependency_graph.json"), true);
+            logger.info("File uploading is successful.");
             return redirect(routes.WidgetController.index())
-                    .flashing("info", "File added!");
+                    .flashing("info", "File is added!");
         } else {
-            System.out.println("bbbb");
-            return badRequest().flashing("error", "Missing file");
+            logger.error("File is missing.");
+            return redirect(routes.WidgetController.index()).flashing("error", "File is missing.");
         }
     }
 }
