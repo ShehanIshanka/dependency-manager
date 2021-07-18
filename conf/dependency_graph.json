@@ -19,26 +19,52 @@
     {
       "id": "5",
       "label": "Node 5 label"
+    },
+    {
+      "id": "6",
+      "label": "Node 6 label"
+    },
+    {
+      "id": "7",
+      "label": "Node 7 label"
+    },
+    {
+      "id": "8",
+      "label": "Node 8 label"
+    },
+    {
+      "id": "9",
+      "label": "Node 9 label"
     }
   ],
   "edges": [
     {
       "source": "1",
-      "target": "2",
-      "weight": 2.0,
-      "label": "Edge between 1 and 2"
+      "target": "2"
     },
     {
       "source": "2",
-      "target": "3",
-      "weight": 3.0,
-      "label": "Edge between 2 and 3"
+      "target": "3"
     },
     {
       "source": "4",
-      "target": "5",
-      "weight": 3.0,
-      "label": "Edge between 4 and 5"
+      "target": "5"
+    },
+    {
+      "source": "2",
+      "target": "4"
+    },
+    {
+      "source": "1",
+      "target": "6"
+    },
+    {
+      "source": "6",
+      "target": "7"
+    },
+    {
+      "source": "8",
+      "target": "9"
     }
   ]
 }

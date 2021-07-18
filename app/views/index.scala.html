@@ -1,124 +1,87 @@
 @import play.mvc.Http.Request
-@(edges: String, attr: String, widgets: Seq[Widget], form: Form[WidgetData])(implicit request: Request, messages: play.i18n.Messages)
+@(edges: String, attr: String, form: Form[DependencyData])(implicit request: Request, messages: play.i18n.Messages)
 
 @main("Dependency Manager") {
-<!--<div class="container" >-->
-<!--    <div class="row m-3 " >-->
-<!--        <div class="col-7" >-->
-<!--            <div class="embed-responsive embed-responsive-1by1 text-center" >-->
-<!--                <div class="embed-responsive-item" id="mynetwork1" style="border: 1px solid lightgray">-->
-<!--                                <ul>-->
-<!--                                    <li>Please go to <a href="@routes.WidgetController.listWidgets">@routes.WidgetController.listWidgets</a>-->
-<!--                                    </li>-->
-<!--                                </ul>-->
-<!--                                <script type="text/javascript" src="@routes.Assets.versioned("javascripts/main.js")"></script>-->
-
-
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</div>-->
-<div align="center">
-    <h2>Dependency Manager</h2>
-    <ul>
-        <li>Please go to <a href="@routes.WidgetController.listWidgets">@routes.WidgetController.listWidgets</a>
-        </li>
-    </ul>
-</div>
-<!--<div class="container">-->
+<div></div>
 <div class="row justify-content-center">
-    <div class="col-md-9" id="mynetwork1">
+    <div class="col-md-9" align="center">
+        <h2>Dependency Manager</h2>
+    </div>
+    <div class="col-md-2 align-self-center" align="center">
+        <input class="btn btn-danger" type="submit" value="Reset" onclick="location.href='@routes.DependencyController.reset()';">
+    </div>
+</div>
+<div class="row justify-content-center">
+    <div class="col-md-9" id="dependencyGraph">
         <script type="text/javascript" src="@routes.Assets.versioned("javascripts/main.js")"></script>
             <script>
                 createNetwork(@Html(edges), @Html(attr));
             </script>
     </div>
     <div class="col-md-2">
-        <p>
-            <input type="button" id="btn-UD" value="Up-Down" />
-            <input type="button" id="btn-DU" value="Down-Up" />
-            <input type="button" id="btn-LR" value="Left-Right" />
-            <input type="button" id="btn-RL" value="Right-Left" />
-            <input type="hidden" id="direction" value="UD" />
-        </p>
-        @* Flash shows updates to a page *@
-        @request.flash.asScala().data.map { case (name, value) =>
-        <div class="@name">@value</div>
-        }
-
-<!--        <table>-->
-<!--            <thead>-->
-<!--            <tr>-->
-<!--                <th>Name</th>-->
-<!--                <th>Price</th>-->
-<!--            </thead>-->
-<!--            <tbody>-->
-<!--            @for(w <- widgets) {-->
-<!--            <tr>-->
-<!--                <td>@w.name</td>-->
-<!--            </tr>-->
-<!--            }-->
-<!--            </tbody>-->
-<!--        </table>-->
-
-<!--        <hr/>-->
-
-        @* Global errors are not tied to any particular form field *@
-        @if(form.hasGlobalErrors) {
-        @form.globalErrors.asScala.map { error: play.data.validation.ValidationError =>
         <div>
-            @error.key: @error.message
+            <b>Graph view</b>
         </div>
-        }
-        }
-
-<!--        @helper.form(routes.WidgetController.createWidget) {-->
-<!--        @helper.CSRF.formField-->
-
-<!--        @helper.inputText(form("name"))-->
-
-<!--        @helper.inputText(form("price"))-->
-
-<!--        <button type="submit">Create widget</button>-->
-<!--        }-->
         <div>
-        @helper.form(action = routes.WidgetController.upload, Symbol("enctype") -> "multipart/form-data") {
-        @helper.CSRF.formField
-        <input type="file" name="dependency_graph">
-
-        <p>
-            <input type="submit">
-        </p>
-
-        }
+            <button type="button" class="btn btn-secondary" onclick='setNetworkDirection("UD")'>
+                <i class="fa fa-arrow-circle-down" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-secondary" onclick='setNetworkDirection("DU")'>
+                <i class="fa fa-arrow-circle-up" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-secondary" onclick='setNetworkDirection("RL")'>
+                <i class="fa fa-arrow-circle-left" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-secondary" onclick='setNetworkDirection("LR")'>
+                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+            </button>
         </div>
         <hr>
         <div>
-<!--            @helper.form(action = routes.WidgetController.upload) {-->
-<!--            @helper.CSRF.formField-->
-<!--            @helper.inputText(form("name"))-->
-<!--            <button type="submit">Create widget</button>-->
-<!--            }-->
-<!--            <form>-->
-            <div class="form-group">
-                    Enter dependency name to search: <input type="text" id = "message">
-            </div>
-            <input type="button" onclick="focusNetwork()" value="Submit" />
-<!--                Enter message: <input type="text" id = "message">-->
-<!--                <input type="button" onclick="showMessage()" value="submit" />-->
-<!--            </form>-->
+            <b>Upload dependency file</b>
         </div>
-        <hr>
         <div>
-            @helper.form(action = routes.WidgetController.buildDependencyGraph) {
+            @helper.form(action = routes.DependencyController.upload, Symbol("enctype") -> "multipart/form-data") {
             @helper.CSRF.formField
-            @helper.inputText(form("name"))
+            <input type="file" dependencies="dependency_graph">
+
+            <p>
+                <input type="submit">
+            </p>
+
+            }
+        </div>
+        <hr>
+        <div>
+            <div class="form-group">
+                <b>Enter node to search</b> <input type="text" id="message">
+            </div>
+            <input type="button" onclick="focusNetwork()" value="Submit"/>
+        </div>
+        <hr>
+        <div>
+            @helper.form(action = routes.DependencyController.buildRecoveryGraph) {
+            @helper.CSRF.formField
+            @helper.inputText(form("Dependencies"))
             <button type="submit">Submit</button>
             }
         </div>
 
     </div>
 </div>
-<!--</div>-->
+<div class="col-md-9" align="center">
+    @* Flash shows updates to a page *@
+    @request.flash.asScala().data.map { case (dependencies, value) =>
+    <div class="@dependencies">@value</div>
+    }
+
+    @* Global errors are not tied to any particular form field *@
+    @if(form.hasGlobalErrors) {
+    @form.globalErrors.asScala.map { error: play.data.validation.ValidationError =>
+    <div>
+        @error.key: @error.message
+    </div>
+    }
+    }
+</div>
 }

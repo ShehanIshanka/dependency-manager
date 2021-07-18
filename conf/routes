@@ -1,14 +1,11 @@
 # Routes
-# This file defines all application routes (Higher priority routes first)
-# ~~~~
-
 # Home page
-GET     /                           controllers.WidgetController.index(request: Request)
+GET     /                         controllers.DependencyController.index(request: Request)
+GET     /reset                    controllers.DependencyController.reset
+#GET     /search                    controllers.DependencyController.search(node:String)
 
 # Widgets
-GET     /kk                    controllers.WidgetController.listWidgets(request: Request)
-POST    /aa                    controllers.WidgetController.createWidget(request: Request)
-POST    /                   controllers.WidgetController.upload(request: Request)
-POST    /aas                   controllers.WidgetController.buildDependencyGraph(request: Request)
+POST    /upload                   controllers.DependencyController.upload(request: Request)
+POST    /recoveryGraph            controllers.DependencyController.buildRecoveryGraph(request: Request)
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /assets/*file             controllers.Assets.versioned(path="/public", file: Asset)

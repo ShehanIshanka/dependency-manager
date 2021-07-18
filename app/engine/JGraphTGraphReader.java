@@ -5,7 +5,6 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import org.apache.commons.lang3.StringUtils;
 import org.jgrapht.Graph;
-import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.builder.GraphTypeBuilder;
 import org.jgrapht.nio.json.JSONImporter;
 import org.jgrapht.traverse.DepthFirstIterator;
@@ -29,6 +28,7 @@ public class JGraphTGraphReader implements GraphReader {
 
     private Graph<String, GraphEdge> graph = null;
     private List<String> vertexAttributes = new ArrayList<>();
+    private Map<String, String> vertexLableMap = new HashMap<>();
 
     private final String dependencyGraphFile;
 
@@ -55,7 +55,10 @@ public class JGraphTGraphReader implements GraphReader {
 
             vertexAttributes.clear();
             importer.addVertexAttributeConsumer((p, a) -> {
-                vertexAttributes.add("{\"id\":\"" + p.getFirst() + "\",\"label\":\"" + a.getValue() + "\"}");
+                String id = p.getFirst();
+                String label = a.getValue();
+                vertexAttributes.add("{\"id\":\"" + id + "\",\"label\":\"" + label + "\"}");
+                vertexLableMap.put(label, id);
             });
             importer.importGraph(graph, new StringReader(input));
 
@@ -89,24 +92,26 @@ public class JGraphTGraphReader implements GraphReader {
         return attr;
     }
 
-    public String buildGraphFromDependencies(String startNodes) {
-        logger.info(StringUtils.join(graph.vertexSet()));
+    public String buildRecoveryGraph(String dependencies) {
+        logger.info("Dependencies are : {}", dependencies);
 
-        startNodes = "2,6,4";
-        List<String> startNodeList = Arrays.asList(startNodes.split(","));
+        List<String> startVertices = Arrays.stream(dependencies.split(","))
+                .map(label -> vertexLableMap.get(label))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
-//        vertexAttributes.stream().filter(uri -> startNodeList.contains(node))
+        Iterator<String> iterator = new DepthFirstIterator(graph, startVertices);
 
-        Iterator<String> iterator = new DepthFirstIterator(graph, startNodeList);
-
-        List<String> attr = new ArrayList<>();
+        List<String> attrList = new ArrayList<>();
         while (iterator.hasNext()) {
             String node = iterator.next();
-            attr.add(vertexAttributes.stream().filter(uri -> uri.contains(node)).findAny()
-                    .get());
+            attrList.add(vertexAttributes.stream().filter(vertex -> vertex.contains(node)).findAny().get());
         }
-        logger.info("[" + StringUtils.join(attr, ",") + "]");
-        return "[" + StringUtils.join(attr, ",") + "]";
+
+        String attr = "[" + StringUtils.join(attrList, ",") + "]";
+
+        logger.info("Recovery graph building is successful.");
+        return attr;
     }
 
 }

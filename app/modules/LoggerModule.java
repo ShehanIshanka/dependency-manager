@@ -2,7 +2,7 @@ package modules;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import controllers.WidgetController;
+import controllers.DependencyController;
 import engine.JGraphTGraphReader;
 import play.Logger;
 import startup.HttpErrorHandler;
@@ -18,7 +18,7 @@ public class LoggerModule extends AbstractModule {
     @Override
     protected void configure() {
         requestStaticInjection(JGraphTGraphReader.class);
-        requestStaticInjection(WidgetController.class);
+        requestStaticInjection(DependencyController.class);
         requestStaticInjection(HttpErrorHandler.class);
     }
 
