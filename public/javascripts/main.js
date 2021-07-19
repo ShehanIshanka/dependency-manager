@@ -35,5 +35,5 @@ function createNetwork(edges,attr) {
 
 function focusNetwork(){
     nodeLabel = document.getElementById('message').value;
-    network.focus(networkNodes.find(o => o.label === nodeLabel)['id']});
+    network.focus(networkNodes.find(o => o.label === nodeLabel)['id']);
 }
